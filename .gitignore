@@ -1,0 +1,19 @@
+# Maven
+target/
+settings.xml
+
+# Eclipse
+.project
+.settings
+.classpath
+/eclipse-target
+bin
+
+# IntelliJ
+*.iml
+.idea
+
+# DB test file
+maven-repository-manager/derby.log
+maven-repository-manager/indexedStorePath
+maven-repository-manager/org.commonjava.indy.folo.model.TrackedContentEntry
