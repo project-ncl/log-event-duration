@@ -37,22 +37,25 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
         String identifier = thisLogEvent.getIdentifier();
         LogEvent firstLogEvent = store.delete(identifier); // get + remove
         if (firstLogEvent != null) {
+            logger.debug("Found matching entry by identifier {}.", identifier);
             Duration duration = Duration.between(firstLogEvent.getTime(), thisLogEvent.getTime()).abs();
             if (firstLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
                 //this is an END event
                 thisLogEvent.addDuration(duration);
-                return new KeyValue<>(identifier, thisLogEvent);
+                return new KeyValue<>(key, thisLogEvent);
             } else {
                 //this is a START event and the END event came in before the START event
                 firstLogEvent.addDuration(duration);
-                context.forward(identifier, thisLogEvent);
-                return new KeyValue<>(firstLogEvent.getIdentifier(), firstLogEvent);
+                context.forward(key, thisLogEvent);
+                return new KeyValue<>(firstLogEvent.getKafkaKey(), firstLogEvent);
             }
         } else {
             //this is a first event
+            thisLogEvent.setKafkaKey(key);
+            logger.debug("Storing entry with identifier {} and key {}.", identifier, key);
             store.put(identifier, thisLogEvent);
             if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
-                return new KeyValue<>(identifier, thisLogEvent);
+                return new KeyValue<>(key, thisLogEvent);
             } else {
                 //the END event came first and it needs to be enriched with the duration
                 //it must be forwarded when the START event gets in
