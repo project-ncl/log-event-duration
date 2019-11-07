@@ -46,7 +46,6 @@ public class Main {
             validateNotBlank(inputTopicName, "Missing output topic name.");
 
             String durationsTopicName = getOption(cmd, "td", null);
-            validateNotBlank(inputTopicName, "Missing durations only topic name.");
 
             Properties kafkaProperties = new Properties();
             kafkaProperties.load(new FileInputStream(kafkaPropertiesPath));

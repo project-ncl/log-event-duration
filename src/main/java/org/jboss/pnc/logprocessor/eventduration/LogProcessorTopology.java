@@ -71,8 +71,10 @@ public class LogProcessorTopology {
 
         output.to(outputTopic, Produced.with(Serdes.String(), logSerde));
 
-        output.filter((key, logEvent) -> isEndLogEvent(logEvent))
-                .to(durationsTopic, Produced.with(Serdes.String(), logSerde));
+        if (durationsTopic != null && !durationsTopic.equals("")) {
+            output.filter((key, logEvent) -> isEndLogEvent(logEvent))
+                    .to(durationsTopic, Produced.with(Serdes.String(), logSerde));
+        }
 
         return builder.build(properties);
     }
