@@ -25,7 +25,8 @@ public class SerdeTest {
         Instant now = Instant.ofEpochMilli(System.currentTimeMillis());
 
         LogEvent logEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, "123-abc");
-        logEvent.getEventType().get().equals(LogEvent.EventType.BEGIN);
+        Assertions.assertEquals(logEvent.getEventType().get(), LogEvent.EventType.BEGIN);
+        logEvent.setKafkaKey("abc");
 
         byte[] serialized = new LogEvent.JsonSerializer().serialize("", logEvent);
 
@@ -35,6 +36,7 @@ public class SerdeTest {
 
         Assertions.assertEquals(LogEvent.EventType.BEGIN, logEvent.getEventType().get());
         Assertions.assertEquals(now, logEvent.getTime());
+        Assertions.assertEquals("abc", logEvent.getKafkaKey());
     }
 
 }

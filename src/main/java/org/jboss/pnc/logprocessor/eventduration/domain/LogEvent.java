@@ -6,10 +6,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Map;
 import java.util.Optional;
 
@@ -18,13 +23,17 @@ import java.util.Optional;
  */
 public class LogEvent {
 
+    private static final Logger logger = LoggerFactory.getLogger(LogEvent.class);
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static final String PROCESS_CONTEXT_KEY = "mdc.processContext";
+    public static final String MDC_KEY = "mdc";
 
-    public static final String EVENT_NAME_KEY = "mdc.process_stage_name";
+    public static final String MDC_PROCESS_CONTEXT_KEY = "processContext";
 
-    public static final String EVENT_TYPE_KEY = "mdc.process_stage_step";
+    public static final String MDC_EVENT_NAME_KEY = "process_stage_name";
+
+    public static final String MDC_EVENT_TYPE_KEY = "process_stage_step";
 
     public static final String TIMESTAMP_KEY = "@timestamp";
 
@@ -32,10 +41,26 @@ public class LogEvent {
 
     public static final String DURATION_KEY = "operationTook";
 
+    public static final String KAFKA_KEY = "kafkaKey";
+
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
+            .ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSZ")
+            .withZone( ZoneId.systemDefault());
+
     private Instant time;
 
     public String getIdentifier() {
-        return message.get(PROCESS_CONTEXT_KEY) + "--" + message.get(EVENT_NAME_KEY);
+        Map<String, String> mdc = (Map<String, String>)message.get(MDC_KEY);
+        if (mdc != null) {
+            String processContext = mdc.get(MDC_PROCESS_CONTEXT_KEY);
+            String eventName = mdc.get(MDC_EVENT_NAME_KEY);
+            if (processContext == null || processContext.equals("")) {
+                logger.warn("Missing processContext for event {}.", eventName);
+            }
+            return processContext + "--" + eventName;
+        } else {
+            return "";
+        }
     }
 
     public Instant getTime() {
@@ -44,6 +69,14 @@ public class LogEvent {
 
     public Map<String, Object> getMessage() {
         return message;
+    }
+
+    public String getKafkaKey() {
+        return (String) message.get(KAFKA_KEY);
+    }
+
+    public void setKafkaKey(String key) {
+        message.put(KAFKA_KEY, key);
     }
 
     public enum EventType {
@@ -74,8 +107,11 @@ public class LogEvent {
 
     private void init(JsonNode jsonNode) {
         message = objectMapper.convertValue(jsonNode, new TypeReference<Map<String, Object>>() {});
+        logger.trace("New log event {}.", message);
         String time = (String) message.get(TIMESTAMP_KEY);
-        this.time = Instant.ofEpochMilli(Long.parseLong(time));
+
+        TemporalAccessor accessor = DATE_TIME_FORMATTER.parse(time);
+        this.time = Instant.from(accessor);
     }
 
     public void addDuration(Duration duration) {
@@ -86,9 +122,14 @@ public class LogEvent {
     }
 
     public Optional<EventType> getEventType() {
-        String eventType = (String) message.get(EVENT_TYPE_KEY);
-        if (eventType != null) {
-            return Optional.of(EventType.valueOf(eventType));
+        Map<String, String> mdc = (Map<String,String>) message.get(MDC_KEY);
+        if (mdc != null) {
+            String eventType = mdc.get(MDC_EVENT_TYPE_KEY);
+            if (eventType != null) {
+                return Optional.of(EventType.valueOf(eventType));
+            } else {
+                return Optional.empty();
+            }
         } else {
             return Optional.empty();
         }
