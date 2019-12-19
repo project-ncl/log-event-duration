@@ -1,19 +1,35 @@
-# Maven
-target/
-settings.xml
-
 # Eclipse
 .project
-.settings
 .classpath
-/eclipse-target
-bin
+.settings/
+bin/
 
 # IntelliJ
-*.iml
 .idea
+*.ipr
+*.iml
+*.iws
 
-# DB test file
-maven-repository-manager/derby.log
-maven-repository-manager/indexedStorePath
-maven-repository-manager/org.commonjava.indy.folo.model.TrackedContentEntry
+# NetBeans
+nb-configuration.xml
+
+# Visual Studio Code
+.vscode
+
+# OSX
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+
+# patch
+*.orig
+*.rej
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
