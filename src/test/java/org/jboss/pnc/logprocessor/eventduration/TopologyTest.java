@@ -63,27 +63,29 @@ public class TopologyTest {
 
     @Test
     public void shouldAddDurationToEndEvents() throws JsonProcessingException {
-        String processContext = UUID.randomUUID().toString();
+        String processContext = "build-123";
+        String eventName = "FINALIZING_EXECUTION";
 
         Instant now = Instant.now();
         Duration duration = Duration.of(15, SECONDS);
         Instant later = now.plus(duration);
 
         //BEGIN event
-        LogEvent startEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, processContext);
-        testDriver.pipeInput(recordFactory.create("input-topic", "key1", startEvent));
+        LogEvent startEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, processContext, eventName);
+        testDriver.pipeInput(recordFactory.create("input-topic", null, startEvent));
 
         //Noise to test matching
-        LogEvent startEventOther = logEventFactory.getLogEvent(now.plus(10, MILLIS), LogEvent.EventType.BEGIN, "other-context");
-        testDriver.pipeInput(recordFactory.create("input-topic", "key1o", startEventOther));
+        Instant latter = now.plus(10, MILLIS);
+        LogEvent startEventOther = logEventFactory.getLogEvent(latter, LogEvent.EventType.BEGIN, "other-context", eventName);
+        testDriver.pipeInput(recordFactory.create("input-topic", null, startEventOther));
 
         //Noise to test matching
-        LogEvent endEventOther = logEventFactory.getLogEvent(now.plus(20, MILLIS), LogEvent.EventType.END, "other-context");
-        testDriver.pipeInput(recordFactory.create("input-topic", "key2o", endEventOther));
+        LogEvent endEventOther = logEventFactory.getLogEvent(now.plus(20, MILLIS), LogEvent.EventType.END, "other-context", eventName);
+        testDriver.pipeInput(recordFactory.create("input-topic", null, endEventOther));
 
         //END event
-        LogEvent endEvent = logEventFactory.getLogEvent(later, LogEvent.EventType.END, processContext);
-        testDriver.pipeInput(recordFactory.create("input-topic", "key2", endEvent));
+        LogEvent endEvent = logEventFactory.getLogEvent(later, LogEvent.EventType.END, processContext, eventName);
+        testDriver.pipeInput(recordFactory.create("input-topic", null, endEvent));
 
         ProducerRecord<String, LogEvent> outputRecordStart = readOutput();
         Assertions.assertNotNull(outputRecordStart.value());
@@ -112,11 +114,11 @@ public class TopologyTest {
         Duration duration = Duration.of(15, SECONDS);
         Instant later = now.plus(duration);
 
-        LogEvent endEvent = logEventFactory.getLogEvent(later, LogEvent.EventType.END, processContext);
-        testDriver.pipeInput(recordFactory.create("input-topic", "key3", endEvent));
+        LogEvent endEvent = logEventFactory.getLogEvent(later, LogEvent.EventType.END, processContext, "");
+        testDriver.pipeInput(recordFactory.create("input-topic", null, endEvent));
 
-        LogEvent startEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, processContext);
-        testDriver.pipeInput(recordFactory.create("input-topic", "key4", startEvent));
+        LogEvent startEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, processContext, "");
+        testDriver.pipeInput(recordFactory.create("input-topic", null, startEvent));
 
         ProducerRecord<String, LogEvent> outputRecordStart = readOutputTopic("output-topic");
         Assertions.assertNotNull(outputRecordStart.value());
@@ -137,11 +139,11 @@ public class TopologyTest {
         Duration duration = Duration.of(15, SECONDS);
         Instant later = now.plus(duration);
 
-        LogEvent startEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, processContext);
-        testDriver.pipeInput(recordFactory.create("input-topic", "key5", startEvent));
+        LogEvent startEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, processContext, "");
+        testDriver.pipeInput(recordFactory.create("input-topic", null, startEvent));
 
-        LogEvent endEvent = logEventFactory.getLogEvent(later, LogEvent.EventType.END, processContext);
-        testDriver.pipeInput(recordFactory.create("input-topic", "key6", endEvent));
+        LogEvent endEvent = logEventFactory.getLogEvent(later, LogEvent.EventType.END, processContext, "");
+        testDriver.pipeInput(recordFactory.create("input-topic", null, endEvent));
 
         ProducerRecord<String, LogEvent> outputRecordEnd = readOutputTopic("durations-topic");
         Assertions.assertNotNull(outputRecordEnd.value());

@@ -24,7 +24,7 @@ public class SerdeTest {
     public void shouldSerializeAndDeserializeLogEvent() throws JsonProcessingException {
         Instant now = Instant.ofEpochMilli(System.currentTimeMillis());
 
-        LogEvent logEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, "123-abc");
+        LogEvent logEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, "123-abc", "");
         Assertions.assertEquals(logEvent.getEventType().get(), LogEvent.EventType.BEGIN);
         logEvent.setKafkaKey("abc");
 

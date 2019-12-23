@@ -3,12 +3,14 @@ package org.jboss.pnc.logprocessor.eventduration;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.Topology;
 
+import javax.enterprise.inject.Vetoed;
 import java.util.Properties;
 
 /**
  * @author Ales Justin
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Vetoed
 public class Application {
 
     private KafkaStreams streams;
