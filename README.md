@@ -8,6 +8,7 @@ The "end" message is enriched with an extra field `operationTook` containing the
 When "duration topic" is specified the enriched "end" messages are sent to the "duration topic".     
 
 ![schema](./log-event-duration.svg)
+[edit](https://www.draw.io/?#Uhttps:%2F%2Fgithub.com%2Fproject-ncl%2Flog-event-duration%2Fraw%2Fmaster%2Flog-event-duration.svg)
 
 ## Configuration
 _kafkaPropertiesPath_: a path to kafka.properties file
