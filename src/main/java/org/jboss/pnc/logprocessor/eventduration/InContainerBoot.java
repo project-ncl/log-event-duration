@@ -1,5 +1,6 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
+import org.apache.kafka.streams.KafkaStreams;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -41,6 +42,10 @@ public class InContainerBoot {
 
         application = new Application(kafkaProperties, inputTopicName, outputTopicName, durationsTopicName);
         application.start();
+    }
+
+    public KafkaStreams.State getStreamState() {
+        return application.getStreamState();
     }
 
     public void destroy() {

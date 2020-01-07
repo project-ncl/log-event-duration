@@ -27,6 +27,11 @@ public class Application {
 
         Topology topology = logProcessorTopology.buildTopology(kafkaProperties);
         streams = new KafkaStreams(topology, kafkaProperties);
+
+    }
+
+    public KafkaStreams.State getStreamState() {
+        return streams.state();
     }
 
     public void start() {
