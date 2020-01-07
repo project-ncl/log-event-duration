@@ -66,5 +66,22 @@ The matching "BEGIN" and the "END" events must end in the same partition of the 
 ensure this make sure the Kafka message keys are properly set or use one partition only.
 A stream processor is using "processContext" and "process_stage_name" to match the messages. 
 
-## Running the application
-TBD
+## Building and Running
+
+### Build UberJar
+```
+./mvnw package
+```
+The original jar containing project classes only will be present in the target directory but it will be renamed to contain the .original suffix.
+
+### Running
+
+Run the application with Quarkus runtime which starts an http server to provide Rediness and Liveness endpoints for cloud deployments. 
+```
+$ java -jar target/log-event-processor-1.0.0-SNAPSHOT-runner.jar
+```
+
+Run plain main class
+```
+$ java -cp target/log-event-processor-1.0.0-SNAPSHOT-runner.jar org.jboss.pnc.logprocessor.eventduration.Main
+```
