@@ -15,6 +15,7 @@ import org.jboss.pnc.logprocessor.eventduration.domain.LogEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -29,9 +30,9 @@ public class LogProcessorTopology {
 
     private final String outputTopic;
 
-    private final String durationsTopic;
+    private final Optional<String> durationsTopic;
 
-    public LogProcessorTopology(String inputTopic, String outputTopic, String durationsTopic) {
+    public LogProcessorTopology(String inputTopic, String outputTopic, Optional<String> durationsTopic) {
         this.inputTopic = inputTopic;
         this.outputTopic = outputTopic;
         this.durationsTopic = durationsTopic;
@@ -71,9 +72,9 @@ public class LogProcessorTopology {
 
         output.to(outputTopic, Produced.with(Serdes.String(), logSerde));
 
-        if (durationsTopic != null && !durationsTopic.equals("")) {
+        if (durationsTopic.isPresent()) {
             output.filter((key, logEvent) -> isEndLogEvent(logEvent))
-                    .to(durationsTopic, Produced.with(Serdes.String(), logSerde));
+                    .to(durationsTopic.get(), Produced.with(Serdes.String(), logSerde));
         }
 
         return builder.build(properties);

@@ -50,7 +50,11 @@ public class Main {
             Properties kafkaProperties = new Properties();
             kafkaProperties.load(new FileInputStream(kafkaPropertiesPath));
 
-            Application application = new Application(kafkaProperties, inputTopicName, outputTopicName, durationsTopicName);
+            Application application = new Application(
+                    kafkaProperties,
+                    inputTopicName,
+                    outputTopicName,
+                    java.util.Optional.ofNullable(durationsTopicName));
             Runtime.getRuntime().addShutdownHook(new Thread(application::stop, "Shutdown-Thread"));
             application.start();
             log.info("Running ...");

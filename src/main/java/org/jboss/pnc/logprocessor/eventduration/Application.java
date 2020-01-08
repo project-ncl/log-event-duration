@@ -4,6 +4,7 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.Topology;
 
 import javax.enterprise.inject.Vetoed;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -19,7 +20,7 @@ public class Application {
             Properties kafkaProperties,
             String inputTopic,
             String outputTopic,
-            String durationsTopic) {
+            Optional<String> durationsTopic) {
         LogProcessorTopology logProcessorTopology = new LogProcessorTopology(
                 inputTopic,
                 outputTopic,
