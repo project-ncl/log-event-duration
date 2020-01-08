@@ -7,6 +7,7 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -25,7 +26,7 @@ public class InContainerBoot {
     String outputTopicName;
 
     @ConfigProperty(name = "durationsTopicName")
-    String durationsTopicName;
+    Optional<String> durationsTopicName;
 
     Logger logger = Logger.getLogger(InContainerBoot.class);
 

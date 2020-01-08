@@ -44,7 +44,7 @@ public class TopologyTest {
         LogProcessorTopology logProcessorTopology = new LogProcessorTopology(
                 "input-topic",
                 "output-topic",
-                "durations-topic");
+                java.util.Optional.of("durations-topic"));
 
         Topology topology = logProcessorTopology.buildTopology(props);
 
