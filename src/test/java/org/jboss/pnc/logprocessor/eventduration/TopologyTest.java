@@ -41,19 +41,14 @@ public class TopologyTest {
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "test");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:1234");
 
-        LogProcessorTopology logProcessorTopology = new LogProcessorTopology(
-                "input-topic",
-                "output-topic",
+        LogProcessorTopology logProcessorTopology = new LogProcessorTopology("input-topic", "output-topic",
                 java.util.Optional.of("durations-topic"));
 
         Topology topology = logProcessorTopology.buildTopology(props);
 
         testDriver = new TopologyTestDriver(topology, props);
 
-        recordFactory = new ConsumerRecordFactory<>(
-                "input-topic",
-                new StringSerializer(),
-                new LogEvent.JsonSerializer());
+        recordFactory = new ConsumerRecordFactory<>("input-topic", new StringSerializer(), new LogEvent.JsonSerializer());
     }
 
     @AfterEach
@@ -70,20 +65,21 @@ public class TopologyTest {
         Duration duration = Duration.of(15, SECONDS);
         Instant later = now.plus(duration);
 
-        //BEGIN event
+        // BEGIN event
         LogEvent startEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, processContext, eventName);
         testDriver.pipeInput(recordFactory.create("input-topic", null, startEvent));
 
-        //Noise to test matching
+        // Noise to test matching
         Instant latter = now.plus(10, MILLIS);
         LogEvent startEventOther = logEventFactory.getLogEvent(latter, LogEvent.EventType.BEGIN, "other-context", eventName);
         testDriver.pipeInput(recordFactory.create("input-topic", null, startEventOther));
 
-        //Noise to test matching
-        LogEvent endEventOther = logEventFactory.getLogEvent(now.plus(20, MILLIS), LogEvent.EventType.END, "other-context", eventName);
+        // Noise to test matching
+        LogEvent endEventOther = logEventFactory.getLogEvent(now.plus(20, MILLIS), LogEvent.EventType.END, "other-context",
+                eventName);
         testDriver.pipeInput(recordFactory.create("input-topic", null, endEventOther));
 
-        //END event
+        // END event
         LogEvent endEvent = logEventFactory.getLogEvent(later, LogEvent.EventType.END, processContext, eventName);
         testDriver.pipeInput(recordFactory.create("input-topic", null, endEvent));
 
@@ -91,7 +87,7 @@ public class TopologyTest {
         Assertions.assertNotNull(outputRecordStart.value());
         Assertions.assertEquals(LogEvent.EventType.BEGIN, outputRecordStart.value().getEventType().get());
 
-        //two non matching noise events
+        // two non matching noise events
         readOutput();
         readOutput();
 

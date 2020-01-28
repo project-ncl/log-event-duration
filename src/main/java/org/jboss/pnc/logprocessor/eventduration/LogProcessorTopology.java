@@ -46,35 +46,21 @@ public class LogProcessorTopology {
         configuration.put(TopicConfig.MIN_COMPACTION_LAG_MS_CONFIG, "0");
         configuration.put(TopicConfig.SEGMENT_BYTES_CONFIG, String.valueOf(64 * 1024 * 1024));
 
-        Serde<LogEvent> logSerde = Serdes.serdeFrom(
-                new LogEvent.JsonSerializer(),
-                new LogEvent.JsonDeserializer()
-        );
-        KStream<String, LogEvent> input = builder.stream(
-                inputTopic,
-                Consumed.with(Serdes.String(), logSerde)
-        );
+        Serde<LogEvent> logSerde = Serdes.serdeFrom(new LogEvent.JsonSerializer(), new LogEvent.JsonDeserializer());
+        KStream<String, LogEvent> input = builder.stream(inputTopic, Consumed.with(Serdes.String(), logSerde));
 
-        StoreBuilder<KeyValueStore<String, LogEvent>> storageStoreBuilder =
-                Stores
-                        .keyValueStoreBuilder(
-                                Stores.inMemoryKeyValueStore(LOG_STORE),
-                                Serdes.String(), logSerde
-                        )
-                        .withCachingEnabled()
-                        .withLoggingEnabled(configuration);
+        StoreBuilder<KeyValueStore<String, LogEvent>> storageStoreBuilder = Stores
+                .keyValueStoreBuilder(Stores.inMemoryKeyValueStore(LOG_STORE), Serdes.String(), logSerde).withCachingEnabled()
+                .withLoggingEnabled(configuration);
         builder.addStateStore(storageStoreBuilder);
 
-        KStream<String, LogEvent> output = input.transform(
-                MergeTransformer::new,
-                LOG_STORE
-        );
+        KStream<String, LogEvent> output = input.transform(MergeTransformer::new, LOG_STORE);
 
         output.to(outputTopic, Produced.with(Serdes.String(), logSerde));
 
         if (durationsTopic.isPresent()) {
-            output.filter((key, logEvent) -> isEndLogEvent(logEvent))
-                    .to(durationsTopic.get(), Produced.with(Serdes.String(), logSerde));
+            output.filter((key, logEvent) -> isEndLogEvent(logEvent)).to(durationsTopic.get(),
+                    Produced.with(Serdes.String(), logSerde));
         }
 
         return builder.build(properties);
