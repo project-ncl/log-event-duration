@@ -36,6 +36,7 @@ public class LogEvent {
     public static final String MDC_EVENT_TYPE_KEY = "process_stage_step";
 
     public static final String TIMESTAMP_KEY = "@timestamp";
+    public static final String TIMESTAMP_ALT_KEY = "timestamp";
 
     public static final String MESSAGE_KEY = "message";
 
@@ -108,7 +109,7 @@ public class LogEvent {
     private void init(JsonNode jsonNode) {
         message = objectMapper.convertValue(jsonNode, new TypeReference<Map<String, Object>>() {});
         logger.trace("New log event {}.", message);
-        String time = (String) message.get(TIMESTAMP_KEY);
+        String time = (String) message.getOrDefault(TIMESTAMP_KEY, message.get(TIMESTAMP_ALT_KEY));
 
         TemporalAccessor accessor = DATE_TIME_FORMATTER.parse(time);
         this.time = Instant.from(accessor);
