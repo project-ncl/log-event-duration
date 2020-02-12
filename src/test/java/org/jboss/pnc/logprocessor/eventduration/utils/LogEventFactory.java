@@ -23,7 +23,8 @@ public class LogEventFactory {
     private static final Logger logger = LoggerFactory.getLogger(LogEventFactory.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public LogEvent getLogEvent(Instant instant, LogEvent.EventType eventType, String processContext, String eventName) throws JsonProcessingException {
+    public LogEvent getLogEvent(Instant instant, LogEvent.EventType eventType, String processContext, String eventName)
+            throws JsonProcessingException {
         Map<String, Object> map = new HashMap<>();
         map.put("customKey", "passThrough");
         map.put(TIMESTAMP_KEY, LogEvent.DATE_TIME_FORMATTER.format(instant));
