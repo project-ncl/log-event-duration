@@ -15,7 +15,6 @@ import java.time.Instant;
  */
 public class SerdeTest {
 
-
     private static final Logger logger = LoggerFactory.getLogger(SerdeTest.class);
 
     private LogEventFactory logEventFactory = new LogEventFactory();

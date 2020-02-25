@@ -21,14 +21,14 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         Options options = new Options();
-        options.addOption("k",true, "Kafka.properties file location.");
-        options.addOption("ti",true, "Input topic name.");
-        options.addOption("to",true, "Output topic name.");
-        options.addOption("td",true, "Durations only topic name.");
+        options.addOption("k", true, "Kafka.properties file location.");
+        options.addOption("ti", true, "Input topic name.");
+        options.addOption("to", true, "Output topic name.");
+        options.addOption("td", true, "Durations only topic name.");
         options.addOption("h", false, "Print this help message.");
 
         CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse( options, args);
+        CommandLine cmd = parser.parse(options, args);
 
         if (cmd.hasOption("h")) {
             printHelp(options);

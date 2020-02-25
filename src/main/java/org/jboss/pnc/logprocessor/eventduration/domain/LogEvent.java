@@ -45,12 +45,12 @@ public class LogEvent {
 
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
             .ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSX")
-            .withZone( ZoneId.systemDefault());
+            .withZone(ZoneId.systemDefault());
 
     private Instant time;
 
     public String getIdentifier() {
-        Map<String, String> mdc = (Map<String, String>)message.get(MDC_KEY);
+        Map<String, String> mdc = (Map<String, String>) message.get(MDC_KEY);
         if (mdc != null) {
             String processContext = mdc.get(MDC_PROCESS_CONTEXT_KEY);
             String eventName = mdc.get(MDC_EVENT_NAME_KEY);
@@ -106,7 +106,8 @@ public class LogEvent {
     }
 
     private void init(JsonNode jsonNode) {
-        message = objectMapper.convertValue(jsonNode, new TypeReference<Map<String, Object>>() {});
+        message = objectMapper.convertValue(jsonNode, new TypeReference<Map<String, Object>>() {
+        });
         logger.trace("New log event {}.", message);
         String time = (String) message.get(TIMESTAMP_KEY);
 
@@ -122,7 +123,7 @@ public class LogEvent {
     }
 
     public Optional<EventType> getEventType() {
-        Map<String, String> mdc = (Map<String,String>) message.get(MDC_KEY);
+        Map<String, String> mdc = (Map<String, String>) message.get(MDC_KEY);
         if (mdc != null) {
             String eventType = mdc.get(MDC_EVENT_TYPE_KEY);
             if (eventType != null) {

@@ -24,14 +24,14 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
     @Override
     public void init(ProcessorContext context) {
         this.context = context;
-        //noinspection unchecked
+        // noinspection unchecked
         store = (KeyValueStore<String, LogEvent>) context.getStateStore(LogProcessorTopology.LOG_STORE);
     }
 
     @Override
     public KeyValue<String, LogEvent> transform(String key, LogEvent thisLogEvent) {
         if (thisLogEvent.getEventType().isEmpty()) {
-            //not an duration event
+            // not an duration event
             return new KeyValue<>(key, thisLogEvent);
         }
         String identifier = thisLogEvent.getIdentifier();
@@ -40,25 +40,25 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
             logger.debug("Found matching entry by identifier {}.", identifier);
             Duration duration = Duration.between(firstLogEvent.getTime(), thisLogEvent.getTime()).abs();
             if (firstLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
-                //this is an END event
+                // this is an END event
                 thisLogEvent.addDuration(duration);
                 return new KeyValue<>(key, thisLogEvent);
             } else {
-                //this is a START event and the END event came in before the START event
+                // this is a START event and the END event came in before the START event
                 firstLogEvent.addDuration(duration);
                 context.forward(key, thisLogEvent);
                 return new KeyValue<>(firstLogEvent.getKafkaKey(), firstLogEvent);
             }
         } else {
-            //this is a first event
+            // this is a first event
             thisLogEvent.setKafkaKey(key);
             logger.debug("Storing entry with identifier {} and key {}.", identifier, key);
             store.put(identifier, thisLogEvent);
             if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
                 return new KeyValue<>(key, thisLogEvent);
             } else {
-                //the END event came first and it needs to be enriched with the duration
-                //it must be forwarded when the START event gets in
+                // the END event came first and it needs to be enriched with the duration
+                // it must be forwarded when the START event gets in
                 return null;
             }
         }
