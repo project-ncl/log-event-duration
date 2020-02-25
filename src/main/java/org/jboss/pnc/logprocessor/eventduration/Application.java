@@ -21,10 +21,7 @@ public class Application {
             String inputTopic,
             String outputTopic,
             Optional<String> durationsTopic) {
-        LogProcessorTopology logProcessorTopology = new LogProcessorTopology(
-                inputTopic,
-                outputTopic,
-                durationsTopic);
+        LogProcessorTopology logProcessorTopology = new LogProcessorTopology(inputTopic, outputTopic, durationsTopic);
 
         Topology topology = logProcessorTopology.buildTopology(kafkaProperties);
         streams = new KafkaStreams(topology, kafkaProperties);

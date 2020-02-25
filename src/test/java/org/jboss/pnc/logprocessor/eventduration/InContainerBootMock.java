@@ -14,7 +14,7 @@ public class InContainerBootMock extends InContainerBoot {
 
     @Override
     public void init() throws IOException {
-        //NOOP
+        // NOOP
     }
 
     @Override
