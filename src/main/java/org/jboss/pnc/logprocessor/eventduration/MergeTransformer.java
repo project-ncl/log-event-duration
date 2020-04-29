@@ -30,6 +30,9 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
 
     @Override
     public KeyValue<String, LogEvent> transform(String key, LogEvent thisLogEvent) {
+        if (thisLogEvent == null) {
+            return null;
+        }
         if (thisLogEvent.getEventType().isEmpty()) {
             // not an duration event
             return new KeyValue<>(key, thisLogEvent);

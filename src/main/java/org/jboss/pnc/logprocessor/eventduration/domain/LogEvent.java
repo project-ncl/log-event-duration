@@ -168,7 +168,7 @@ public class LogEvent {
 
         @Override
         public LogEvent deserialize(String topic, byte[] bytes) {
-            if (bytes == null) {
+            if (bytes == null || bytes.length == 0) {
                 return null;
             }
 
