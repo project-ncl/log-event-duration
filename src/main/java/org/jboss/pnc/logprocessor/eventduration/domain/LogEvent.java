@@ -44,7 +44,7 @@ public class LogEvent {
     public static final String KAFKA_KEY = "kafkaKey";
 
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
-            .ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSX")
+            .ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX")
             .withZone(ZoneId.systemDefault());
 
     private Instant time;
