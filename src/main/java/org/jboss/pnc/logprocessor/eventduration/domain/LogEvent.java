@@ -6,15 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
+import org.jboss.pnc.logprocessor.eventduration.DateParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.Map;
 import java.util.Optional;
 
@@ -42,10 +40,6 @@ public class LogEvent {
     public static final String DURATION_KEY = "operationTook";
 
     public static final String KAFKA_KEY = "kafkaKey";
-
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
-            .ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX")
-            .withZone(ZoneId.systemDefault());
 
     private Instant time;
 
@@ -111,8 +105,7 @@ public class LogEvent {
         logger.trace("New log event {}.", message);
         String time = (String) message.get(TIMESTAMP_KEY);
 
-        TemporalAccessor accessor = DATE_TIME_FORMATTER.parse(time);
-        this.time = Instant.from(accessor);
+        this.time = DateParser.parseTime(time);
     }
 
     public void addDuration(Duration duration) {
