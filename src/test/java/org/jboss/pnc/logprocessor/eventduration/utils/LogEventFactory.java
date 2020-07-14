@@ -2,6 +2,7 @@ package org.jboss.pnc.logprocessor.eventduration.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.pnc.logprocessor.eventduration.DateParser;
 import org.jboss.pnc.logprocessor.eventduration.domain.LogEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ public class LogEventFactory {
             throws JsonProcessingException {
         Map<String, Object> map = new HashMap<>();
         map.put("customKey", "passThrough");
-        map.put(TIMESTAMP_KEY, LogEvent.DATE_TIME_FORMATTER.format(instant));
+        map.put(TIMESTAMP_KEY, DateParser.DEFAULT_DATE_TIME_FORMATTER.format(instant));
 
         Map<String, String> mdc = new HashMap<>();
         mdc.put(MDC_EVENT_TYPE_KEY, eventType.toString());
