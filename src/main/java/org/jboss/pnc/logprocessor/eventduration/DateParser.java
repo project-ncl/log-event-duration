@@ -13,7 +13,9 @@ public class DateParser {
             .withZone(ZoneId.systemDefault());
 
     public static Instant parseTime(String time) {
-        DateTimeFormatter[] formatters = { DEFAULT_DATE_TIME_FORMATTER, DateTimeFormatter.ISO_INSTANT,
+        DateTimeFormatter[] formatters = {
+                DEFAULT_DATE_TIME_FORMATTER,
+                DateTimeFormatter.ISO_INSTANT,
                 DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSZ").withZone(ZoneId.systemDefault()) };
         for (DateTimeFormatter formatter : formatters) {
             try {
