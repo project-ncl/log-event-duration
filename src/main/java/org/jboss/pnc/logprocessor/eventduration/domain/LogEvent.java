@@ -3,12 +3,20 @@ package org.jboss.pnc.logprocessor.eventduration.domain;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.prometheus.client.Counter;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Gauge;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.jboss.pnc.logprocessor.eventduration.DateParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -19,7 +27,14 @@ import java.util.Optional;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Timed
 public class LogEvent {
+
+    static final Counter exceptionsTotal = Counter.build()
+            .name("LogEvent_Exceptions_Total")
+            .help("Errors and Warnings counting metric")
+            .labelNames("severity")
+            .register();
 
     private static final Logger logger = LoggerFactory.getLogger(LogEvent.class);
 
@@ -49,6 +64,7 @@ public class LogEvent {
             String processContext = mdc.get(MDC_PROCESS_CONTEXT_KEY);
             String eventName = mdc.get(MDC_EVENT_NAME_KEY);
             if (processContext == null || processContext.equals("")) {
+                exceptionsTotal.labels("warning").inc();
                 logger.warn("Missing processContext for event {}.", eventName);
             }
             return processContext + "--" + eventName;
@@ -84,6 +100,7 @@ public class LogEvent {
         try {
             jsonNode = objectMapper.readTree(serialized);
         } catch (IOException e) {
+            exceptionsTotal.labels("error").inc();
             throw new SerializationException("Cannot construct object from serialized bytes.", e);
         }
         init(jsonNode);
@@ -94,6 +111,7 @@ public class LogEvent {
         try {
             jsonNode = objectMapper.readTree(serializedLogEvent);
         } catch (IOException e) {
+            exceptionsTotal.labels("error").inc();
             throw new SerializationException("Cannot construct object from serialized string.", e);
         }
         init(jsonNode);
@@ -144,6 +162,7 @@ public class LogEvent {
             try {
                 return objectMapper.writeValueAsBytes(logEvent.message);
             } catch (Exception e) {
+                exceptionsTotal.labels("error").inc();
                 throw new SerializationException("Error serializing JSON message", e);
             }
         }
@@ -169,6 +188,7 @@ public class LogEvent {
             try {
                 data = new LogEvent(bytes);
             } catch (Exception e) {
+                exceptionsTotal.labels("error").inc();
                 throw new SerializationException(e);
             }
             return data;
@@ -177,5 +197,19 @@ public class LogEvent {
         @Override
         public void close() {
         }
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Gauge(name = "LogEvent_Err_Count", unit = MetricUnits.NONE, description = "Errors count")
+    public int showCurrentErrCount() {
+        return (int) exceptionsTotal.labels("error").get();
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Gauge(name = "LogEvent_Warn_Count", unit = MetricUnits.NONE, description = "Warnings count")
+    public int showCurrentWarnCount() {
+        return (int) exceptionsTotal.labels("warning").get();
     }
 }
