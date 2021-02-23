@@ -43,12 +43,26 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
             logger.debug("Found matching entry by identifier {}.", identifier);
             Duration duration = Duration.between(firstLogEvent.getTime(), thisLogEvent.getTime()).abs();
             if (firstLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
-                // this is an END event
-                thisLogEvent.addDuration(duration);
+                if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.END)) {
+                    // this is an END event
+                    thisLogEvent.addDuration(duration);
+                } else {
+                    logger.warn(
+                            "Expected END log event but received identifier: {}, Type:{}.",
+                            thisLogEvent.getIdentifier(),
+                            thisLogEvent.getEventType());
+                }
                 return new KeyValue<>(key, thisLogEvent);
             } else {
-                // this is a START event and the END event came in before the START event
-                firstLogEvent.addDuration(duration);
+                if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
+                    // this is a START event and the END event came in before the START event
+                    firstLogEvent.addDuration(duration);
+                } else {
+                    logger.warn(
+                            "Expected BEGIN log event but received identifier: {}, Type:{}.",
+                            thisLogEvent.getIdentifier(),
+                            thisLogEvent.getEventType());
+                }
                 context.forward(key, thisLogEvent);
                 return new KeyValue<>(firstLogEvent.getKafkaKey(), firstLogEvent);
             }
