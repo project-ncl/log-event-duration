@@ -47,7 +47,6 @@
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
     <quarkus.platform.version>2.1.1.Final</quarkus.platform.version>
     <kafka-clients.version>2.8.0</kafka-clients.version>
-    <quarkus.package.type>uber-jar</quarkus.package.type>
     <tagSuffix />
   </properties>
 
