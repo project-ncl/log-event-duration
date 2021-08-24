@@ -157,6 +157,61 @@ public class TopologyTest {
         Assertions.assertNull(outputRecordStart);
     }
 
+    @Test
+    public void shouldNotMixEventsWithContextVariant() throws JsonProcessingException {
+        String processContext = "build-123";
+        String processContextVariant = "1";
+        String eventName = "FINALIZING_EXECUTION";
+
+        Instant now = Instant.now();
+        Duration duration = Duration.of(15, SECONDS);
+        Duration variantDuration = Duration.of(10, SECONDS);
+
+        // BEGIN event
+        LogEvent startEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, processContext, eventName);
+        testDriver.pipeInput(recordFactory.create("input-topic", null, startEvent));
+
+        // BEGIN event with variant
+        LogEvent startEventVariant = logEventFactory
+                .getLogEvent(now, LogEvent.EventType.BEGIN, processContext, processContextVariant, eventName);
+        testDriver.pipeInput(recordFactory.create("input-topic", null, startEventVariant));
+
+        // Noise to test matching
+        LogEvent endEventVariant = logEventFactory.getLogEvent(
+                now.plus(variantDuration),
+                LogEvent.EventType.END,
+                processContext,
+                processContextVariant,
+                eventName);
+        testDriver.pipeInput(recordFactory.create("input-topic", null, endEventVariant));
+
+        // END event
+        LogEvent endEvent = logEventFactory
+                .getLogEvent(now.plus(duration), LogEvent.EventType.END, processContext, eventName);
+        testDriver.pipeInput(recordFactory.create("input-topic", null, endEvent));
+
+        // start event
+        ProducerRecord<String, LogEvent> outputRecordStart = readOutput();
+        Assertions.assertNotNull(outputRecordStart.value());
+        Assertions.assertEquals(LogEvent.EventType.BEGIN, outputRecordStart.value().getEventType().get());
+
+        // start variant event
+        readOutput();
+
+        // end variant event
+        ProducerRecord<String, LogEvent> outputVariantRecordEnd = readOutput();
+        Assertions.assertNotNull(outputVariantRecordEnd.value());
+        Assertions.assertEquals(LogEvent.EventType.END, outputVariantRecordEnd.value().getEventType().get());
+        int variantOperationTook = (Integer) outputVariantRecordEnd.value().getMessage().get(DURATION_KEY);
+        Assertions.assertEquals(variantDuration.toMillis(), variantOperationTook);
+
+        ProducerRecord<String, LogEvent> outputRecordEnd = readOutput();
+        Assertions.assertNotNull(outputRecordEnd.value());
+        Assertions.assertEquals(LogEvent.EventType.END, outputRecordEnd.value().getEventType().get());
+        int operationTook = (Integer) outputRecordEnd.value().getMessage().get(DURATION_KEY);
+        Assertions.assertEquals(duration.toMillis(), operationTook);
+    }
+
     private ProducerRecord<String, LogEvent> readOutputTopic(String topic) {
         return testDriver.readOutput(topic, new StringDeserializer(), new LogEvent.JsonDeserializer());
     }

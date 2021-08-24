@@ -16,6 +16,11 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.jboss.pnc.api.constants.MDCKeys.EVENT_NAME_KEY;
+import static org.jboss.pnc.api.constants.MDCKeys.EVENT_TYPE_KEY;
+import static org.jboss.pnc.api.constants.MDCKeys.PROCESS_CONTEXT_KEY;
+import static org.jboss.pnc.api.constants.MDCKeys.PROCESS_CONTEXT_VARIANT_KEY;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -26,12 +31,6 @@ public class LogEvent {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static final String MDC_KEY = "mdc";
-
-    public static final String MDC_PROCESS_CONTEXT_KEY = "processContext";
-
-    public static final String MDC_EVENT_NAME_KEY = "process_stage_name";
-
-    public static final String MDC_EVENT_TYPE_KEY = "process_stage_step";
 
     public static final String TIMESTAMP_KEY = "@timestamp";
 
@@ -46,12 +45,17 @@ public class LogEvent {
     public String getIdentifier() {
         Map<String, String> mdc = (Map<String, String>) message.get(MDC_KEY);
         if (mdc != null) {
-            String processContext = mdc.get(MDC_PROCESS_CONTEXT_KEY);
-            String eventName = mdc.get(MDC_EVENT_NAME_KEY);
+            String processContext = mdc.get(PROCESS_CONTEXT_KEY);
+            String eventName = mdc.get(EVENT_NAME_KEY);
             if (processContext == null || processContext.equals("")) {
                 logger.warn("Missing processContext for event {}.", eventName);
             }
-            return processContext + "--" + eventName;
+            String processContextVariant = mdc.get(PROCESS_CONTEXT_VARIANT_KEY);
+            if (processContextVariant != null && !processContextVariant.equals("")) {
+                return processContext + "--" + processContextVariant + "--" + eventName;
+            } else {
+                return processContext + "--" + eventName;
+            }
         } else {
             return "";
         }
@@ -118,7 +122,7 @@ public class LogEvent {
     public Optional<EventType> getEventType() {
         Map<String, String> mdc = (Map<String, String>) message.get(MDC_KEY);
         if (mdc != null) {
-            String eventType = mdc.get(MDC_EVENT_TYPE_KEY);
+            String eventType = mdc.get(EVENT_TYPE_KEY);
             if (eventType != null) {
                 return Optional.of(EventType.valueOf(eventType));
             } else {
