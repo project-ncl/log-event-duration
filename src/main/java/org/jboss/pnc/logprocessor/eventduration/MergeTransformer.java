@@ -1,5 +1,6 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
+import io.micrometer.core.annotation.Timed;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
@@ -28,6 +29,7 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
         store = (KeyValueStore<String, LogEvent>) context.getStateStore(LogProcessorTopology.LOG_STORE);
     }
 
+    @Timed
     @Override
     public KeyValue<String, LogEvent> transform(String key, LogEvent thisLogEvent) {
         if (thisLogEvent == null) {

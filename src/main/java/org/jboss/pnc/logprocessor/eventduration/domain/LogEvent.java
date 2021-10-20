@@ -3,6 +3,9 @@ package org.jboss.pnc.logprocessor.eventduration.domain;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
@@ -10,6 +13,9 @@ import org.jboss.pnc.logprocessor.eventduration.DateParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
@@ -25,6 +31,8 @@ import static org.jboss.pnc.api.constants.MDCKeys.PROCESS_CONTEXT_VARIANT_KEY;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class LogEvent {
+
+    private static final String className = LogEvent.class.getName();
 
     private static final Logger logger = LoggerFactory.getLogger(LogEvent.class);
 
@@ -42,12 +50,26 @@ public class LogEvent {
 
     private Instant time;
 
+    @Inject
+    @Singleton
+    MeterRegistry registry;
+
+    private static Counter errCounter;
+    private static Counter warnCounter;
+
+    @PostConstruct
+    void initMetrics() {
+        errCounter = registry.counter(className + ".error.count");
+        warnCounter = registry.counter(className + ".warning.count");
+    }
+
     public String getIdentifier() {
         Map<String, String> mdc = (Map<String, String>) message.get(MDC_KEY);
         if (mdc != null) {
             String processContext = mdc.get(PROCESS_CONTEXT_KEY);
             String eventName = mdc.get(EVENT_NAME_KEY);
             if (processContext == null || processContext.equals("")) {
+                warnCounter.increment();
                 logger.warn("Missing processContext for event {}.", eventName);
             }
             String processContextVariant = mdc.get(PROCESS_CONTEXT_VARIANT_KEY);
@@ -88,6 +110,7 @@ public class LogEvent {
         try {
             jsonNode = objectMapper.readTree(serialized);
         } catch (IOException e) {
+            errCounter.increment();
             throw new SerializationException("Cannot construct object from serialized bytes.", e);
         }
         init(jsonNode);
@@ -98,6 +121,7 @@ public class LogEvent {
         try {
             jsonNode = objectMapper.readTree(serializedLogEvent);
         } catch (IOException e) {
+            errCounter.increment();
             throw new SerializationException("Cannot construct object from serialized string.", e);
         }
         init(jsonNode);
@@ -139,6 +163,7 @@ public class LogEvent {
         public void configure(Map<String, ?> configs, boolean isKey) {
         }
 
+        @Timed
         @Override
         public byte[] serialize(String topic, LogEvent logEvent) {
             if (logEvent == null) {
@@ -148,6 +173,7 @@ public class LogEvent {
             try {
                 return objectMapper.writeValueAsBytes(logEvent.message);
             } catch (Exception e) {
+                errCounter.increment();
                 throw new SerializationException("Error serializing JSON message", e);
             }
         }
@@ -163,6 +189,7 @@ public class LogEvent {
         public void configure(Map<String, ?> configs, boolean isKey) {
         }
 
+        @Timed
         @Override
         public LogEvent deserialize(String topic, byte[] bytes) {
             if (bytes == null || bytes.length == 0) {
@@ -173,6 +200,7 @@ public class LogEvent {
             try {
                 data = new LogEvent(bytes);
             } catch (Exception e) {
+                errCounter.increment();
                 throw new SerializationException(e);
             }
             return data;

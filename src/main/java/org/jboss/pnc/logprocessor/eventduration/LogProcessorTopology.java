@@ -1,5 +1,6 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
+import io.micrometer.core.annotation.Timed;
 import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -38,6 +39,7 @@ public class LogProcessorTopology {
         this.durationsTopic = durationsTopic;
     }
 
+    @Timed
     Topology buildTopology(Properties properties) {
         StreamsBuilder builder = new StreamsBuilder();
 
