@@ -47,6 +47,7 @@
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
     <quarkus.platform.version>2.4.2.Final</quarkus.platform.version>
     <kafka-clients.version>2.8.0</kafka-clients.version>
+    <quarkus.package.type>uber-jar</quarkus.package.type>
     <tagSuffix />
   </properties>
 
@@ -121,6 +122,9 @@
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
         <version>${quarkus.platform.version}</version>
+        <configuration>
+            <finalName>log-event-duration</finalName>
+        </configuration>
         <executions>
           <execution>
             <goals>
