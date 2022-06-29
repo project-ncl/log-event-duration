@@ -40,7 +40,9 @@ public class LogEvent {
 
     public static final String MDC_KEY = "mdc";
 
-    public static final String TIMESTAMP_KEY = "@timestamp";
+    public static final String TIMESTAMP_KEY = "timestamp";
+
+    public static final String AT_TIMESTAMP_KEY = "@timestamp";
 
     public static final String MESSAGE_KEY = "message";
 
@@ -131,7 +133,12 @@ public class LogEvent {
         message = objectMapper.convertValue(jsonNode, new TypeReference<Map<String, Object>>() {
         });
         logger.trace("New log event {}.", message);
-        String time = (String) message.get(TIMESTAMP_KEY);
+        String time;
+        if (message.containsKey(TIMESTAMP_KEY)) {
+            time = (String) message.get(TIMESTAMP_KEY);
+        } else {
+            time = (String) message.get(AT_TIMESTAMP_KEY);
+        }
 
         this.time = DateParser.parseTime(time);
     }
