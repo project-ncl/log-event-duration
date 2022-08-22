@@ -148,6 +148,11 @@ public class LogEvent {
         long durationMillis = duration.toMillis();
         message.put(MESSAGE_KEY, logMessage + " Took " + durationMillis + "ms.");
         message.put(DURATION_KEY, durationMillis);
+        /*
+         * message is sent to Kafka. For test TC46, we'd also like to print it to stdout so that we can observe what is
+         * going on in Splunk
+         */
+        logger.info("{} Took {} ms.", logMessage, durationMillis);
     }
 
     public Optional<EventType> getEventType() {
