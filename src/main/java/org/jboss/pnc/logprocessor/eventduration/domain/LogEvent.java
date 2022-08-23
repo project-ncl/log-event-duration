@@ -152,7 +152,13 @@ public class LogEvent {
          * message is sent to Kafka. For test TC46, we'd also like to print it to stdout so that we can observe what is
          * going on in Splunk
          */
-        logger.info("{} Took {} ms.", logMessage, durationMillis);
+        Map<String, String> mdc = (Map<String, String>) message.get(MDC_KEY);
+        if (mdc != null) {
+            String processContext = mdc.get(PROCESS_CONTEXT_KEY);
+            logger.info("Process [{}]: {} Took {} ms.", processContext, logMessage, durationMillis);
+        } else {
+            logger.info("{} Took {} ms.", logMessage, durationMillis);
+        }
     }
 
     public Optional<EventType> getEventType() {
