@@ -42,7 +42,7 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
         String identifier = thisLogEvent.getIdentifier();
         LogEvent firstLogEvent = store.delete(identifier); // get + remove
         if (firstLogEvent != null) {
-            logger.debug("Found matching entry by identifier {}.", identifier);
+            logger.info("Found matching entry by identifier {}.", identifier);
             Duration duration = Duration.between(firstLogEvent.getTime(), thisLogEvent.getTime()).abs();
             if (firstLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
                 if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.END)) {
@@ -71,7 +71,7 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
         } else {
             // this is a first event
             thisLogEvent.setKafkaKey(key);
-            logger.debug("Storing entry with identifier {} and key {}.", identifier, key);
+            logger.info("Storing entry with identifier {} and key {}.", identifier, key);
             store.put(identifier, thisLogEvent);
             if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
                 return new KeyValue<>(key, thisLogEvent);
