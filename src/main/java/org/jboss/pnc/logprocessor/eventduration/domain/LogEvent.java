@@ -132,7 +132,7 @@ public class LogEvent {
     private void init(JsonNode jsonNode) {
         message = objectMapper.convertValue(jsonNode, new TypeReference<Map<String, Object>>() {
         });
-        logger.trace("New log event {}.", message);
+        logger.info("New log event {}.", message);
         String time;
         if (message.containsKey(TIMESTAMP_KEY)) {
             time = (String) message.get(TIMESTAMP_KEY);
