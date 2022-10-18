@@ -1,8 +1,8 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
 import io.micrometer.core.annotation.Timed;
-import io.opentelemetry.extension.annotations.SpanAttribute;
-import io.opentelemetry.extension.annotations.WithSpan;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
@@ -34,7 +34,7 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
 
     @Timed
     @Override
-    @WithSpan
+    @WithSpan()
     public KeyValue<String, LogEvent> transform(
             @SpanAttribute(value = "key") String key,
             @SpanAttribute(value = "thisLogEvent") LogEvent thisLogEvent) {
