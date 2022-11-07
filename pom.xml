@@ -138,6 +138,8 @@
         <version>${quarkus.platform.version}</version>
         <configuration>
             <finalName>log-event-duration</finalName>
+            <!-- needed to publish to maven central -->
+            <skipOriginalJarRename>true</skipOriginalJarRename>
         </configuration>
         <executions>
           <execution>
