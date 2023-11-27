@@ -65,7 +65,7 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-api</artifactId>
-      <version>2.4.6</version>
+      <version>2.4.8</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.logmanager</groupId>
