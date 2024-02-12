@@ -19,6 +19,7 @@ import java.time.Duration;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String, LogEvent>> {
+    public static final String DEFAULT_KAFKA_MESSAGE_KEY = "0";
     private static final Logger logger = LoggerFactory.getLogger(MergeTransformer.class);
 
     private KeyValueStore<String, LogEvent> store;
@@ -38,6 +39,27 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
     public KeyValue<String, LogEvent> transform(
             @SpanAttribute(value = "key") String key,
             @SpanAttribute(value = "thisLogEvent") LogEvent thisLogEvent) {
+
+        /*
+         * This change is to support sending the output messages to multiple partitions.
+         *
+         * If the key is not set by the sender, set the key of the output to the mdc process context, if present.
+         *
+         * By default, Kafka uses the key of the message to send the message to a particular partition in the topic.
+         * Since we care about message ordering for a specific build, and a specific build will have a specific process
+         * context, all the logs for a specific build will be sent to the same specific partition, guaranteeing message
+         * ordering.
+         *
+         * If the key is not set, we set the key to be that of the DEFAULT_KAFKA_MESSAGE_KEY. They'll all be sent to a
+         * specific partition to maintain ordering of messages for that case.
+         *
+         * If the key remains null, Kafka's default behaviour is to load balance the message through the partitions of a
+         * topic, which is not desirable in our case.
+         */
+        if (key == null) {
+            key = thisLogEvent.getMdcProcessContext().orElse(DEFAULT_KAFKA_MESSAGE_KEY);
+        }
+
         if (thisLogEvent == null) {
             return null;
         }
