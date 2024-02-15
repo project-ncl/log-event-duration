@@ -210,6 +210,40 @@ public class TopologyTest {
         Assertions.assertEquals(duration.toMillis(), operationTook);
     }
 
+    @Test
+    public void shouldSetKeytoProcessMdcContextIfAbsent() throws Exception {
+        String processContext = "build-123";
+        String eventName = "Test 123";
+
+        Instant now = Instant.now();
+
+        // BEGIN event
+        LogEvent startEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, processContext, eventName);
+        inputTopic.pipeInput(startEvent);
+
+        // READ
+        KeyValue<String, LogEvent> outputRecordEnd = readOutput();
+        Assertions.assertNotNull(outputRecordEnd.value);
+        Assertions.assertEquals(processContext, outputRecordEnd.key);
+    }
+
+    @Test
+    public void shouldSetKeyToDefaultMessageKeyIfKeyNullAndProcessMdcContextNull() throws Exception {
+        String eventName = "Test 123";
+
+        Instant now = Instant.now();
+
+        // BEGIN event
+        LogEvent startEvent = logEventFactory.getLogEvent(now, LogEvent.EventType.BEGIN, null, eventName);
+        inputTopic.pipeInput(startEvent);
+
+        // READ
+        KeyValue<String, LogEvent> outputRecordEnd = readOutput();
+        Assertions.assertNotNull(outputRecordEnd.value);
+        Assertions.assertEquals(MergeTransformer.DEFAULT_KAFKA_MESSAGE_KEY, outputRecordEnd.key);
+
+    }
+
     private KeyValue<String, LogEvent> readOutputTopic(String topic) {
         TestOutputTopic<String, LogEvent> outputTopic = testDriver
                 .createOutputTopic(topic, new StringDeserializer(), new LogEvent.JsonDeserializer());
