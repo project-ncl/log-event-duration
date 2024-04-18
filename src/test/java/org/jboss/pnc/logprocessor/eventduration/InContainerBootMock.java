@@ -2,7 +2,7 @@ package org.jboss.pnc.logprocessor.eventduration;
 
 import io.quarkus.test.Mock;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 
 /**
