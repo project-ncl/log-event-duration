@@ -2,10 +2,10 @@ package org.jboss.pnc.logprocessor.eventduration;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
