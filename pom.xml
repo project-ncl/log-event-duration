@@ -21,8 +21,8 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:git@github.com:project-ncl/log-event-duration.git</connection>
-    <url>scm:git:git@github.com:project-ncl/log-event-duration.git</url>
+    <connection>scm:git:https://github.com/project-ncl/log-event-duration.git</connection>
+    <url>https://github.com/project-ncl/log-event-duration.git</url>
     <developerConnection>scm:git:git@github.com:project-ncl/log-event-duration.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
@@ -37,6 +37,7 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <quarkus.version>3.9.4</quarkus.version>
+     <version.source.plugin>3.3.1</version.source.plugin>
     <quarkus.package.type>uber-jar</quarkus.package.type>
     <tagSuffix />
   </properties>
@@ -267,6 +268,19 @@
       <id>release</id>
       <build>
         <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-source-plugin</artifactId>
+              <version>${version.source.plugin}</version>
+              <executions>
+                  <execution>
+                      <id>attach-sources</id>
+                      <goals>
+                          <goal>jar-no-fork</goal>
+                      </goals>
+                  </execution>
+              </executions>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
