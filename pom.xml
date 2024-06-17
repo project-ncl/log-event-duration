@@ -5,7 +5,7 @@
 
   <groupId>org.jboss.pnc.logprocessor</groupId>
   <artifactId>log-event-processor</artifactId>
-  <version>3.0.2</version>
+  <version>3.0.3-SNAPSHOT</version>
 
   <name>pnc</name>
   <description>A system for managing, executing, and tracking builds.</description>
@@ -24,7 +24,7 @@
     <connection>scm:git:git@github.com:project-ncl/log-event-duration.git</connection>
     <url>scm:git:git@github.com:project-ncl/log-event-duration.git</url>
     <developerConnection>scm:git:git@github.com:project-ncl/log-event-duration.git</developerConnection>
-    <tag>3.0.2</tag>
+    <tag>HEAD</tag>
   </scm>
   <developers>
     <developer>
