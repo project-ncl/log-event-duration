@@ -7,6 +7,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.processor.To;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.jboss.pnc.logprocessor.eventduration.domain.LogEvent;
 import org.slf4j.Logger;
@@ -93,7 +94,17 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
                             thisLogEvent.getIdentifier(),
                             thisLogEvent.getEventType());
                 }
-                context.forward(key, thisLogEvent);
+                /*
+                 * We use context.forward when we want to send more than 1 message to downstream queue in this transform
+                 * method. The timestamp of the sent message is inherited from the input record.
+                 *
+                 * This causes an issue if we are consuming old messages. We cannot then send that message with the old
+                 * timestamp to the downstream queue because Kafka doesn't like that the timestamp is so old.
+                 *
+                 * We can override this context.forward behaviour by using To.all().withTimestamp(latest timestamp);
+                 * timestamp is in UNIX milliseconds epoch
+                 */
+                context.forward(key, thisLogEvent, To.all().withTimestamp(System.currentTimeMillis()));
                 return new KeyValue<>(firstLogEvent.getKafkaKey(), firstLogEvent);
             }
         } else {
