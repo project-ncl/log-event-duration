@@ -66,7 +66,12 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
         }
         if (thisLogEvent.getEventType().isEmpty()) {
             // not an duration event
-            return new KeyValue<>(key, thisLogEvent);
+            /**
+             * We use this pattern because the original timestamp of the received message is used to send The original
+             * timestamp might be too old to send, so we have to override that sent timestamp. Only this pattern works
+             */
+            sendWithNewTimestamp(new KeyValue<>(key, thisLogEvent));
+            return null;
         }
         String identifier = thisLogEvent.getIdentifier();
         LogEvent firstLogEvent = store.delete(identifier); // get + remove
@@ -83,7 +88,8 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
                             thisLogEvent.getIdentifier(),
                             thisLogEvent.getEventType());
                 }
-                return new KeyValue<>(key, thisLogEvent);
+                sendWithNewTimestamp(new KeyValue<>(key, thisLogEvent));
+                return null;
             } else {
                 if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
                     // this is a START event and the END event came in before the START event
@@ -105,7 +111,8 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
                  * timestamp is in UNIX milliseconds epoch
                  */
                 context.forward(key, thisLogEvent, To.all().withTimestamp(System.currentTimeMillis()));
-                return new KeyValue<>(firstLogEvent.getKafkaKey(), firstLogEvent);
+                sendWithNewTimestamp(new KeyValue<>(firstLogEvent.getKafkaKey(), firstLogEvent));
+                return null;
             }
         } else {
             // this is a first event
@@ -113,13 +120,32 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
             logger.info("Storing entry with identifier {} and key {}.", identifier, key);
             store.put(identifier, thisLogEvent);
             if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
-                return new KeyValue<>(key, thisLogEvent);
+                sendWithNewTimestamp(new KeyValue<>(key, thisLogEvent));
+                return null;
             } else {
                 // the END event came first and it needs to be enriched with the duration
                 // it must be forwarded when the START event gets in
                 return null;
             }
         }
+    }
+
+    /**
+     * Send record with new timestamp.
+     *
+     * By default, When new output records are generated via directly processing some input record, output record
+     * timestamps are inherited from input record timestamps directly. (Source:
+     * https://docs.confluent.io/platform/current/streams/concepts.html)
+     *
+     * If the app is down for a long time, the input record might have an old timestamp, and Kafka server is not happy
+     * when we send a record with an old timestamp. This overrides the default behaviour by setting a new record
+     * timestamp.
+     *
+     * Note that this doesn't change the timestamp in the message, which is the timestamp set in the log.
+     *
+     */
+    private void sendWithNewTimestamp(KeyValue<String, LogEvent> value) {
+        context.forward(value, System.currentTimeMillis());
     }
 
     @Override
