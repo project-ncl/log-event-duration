@@ -70,7 +70,7 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
              * We use this pattern because the original timestamp of the received message is used to send The original
              * timestamp might be too old to send, so we have to override that sent timestamp. Only this pattern works
              */
-            sendWithNewTimestamp(new KeyValue<>(key, thisLogEvent));
+            sendWithNewTimestamp(key, thisLogEvent);
             return null;
         }
         String identifier = thisLogEvent.getIdentifier();
@@ -88,7 +88,7 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
                             thisLogEvent.getIdentifier(),
                             thisLogEvent.getEventType());
                 }
-                sendWithNewTimestamp(new KeyValue<>(key, thisLogEvent));
+                sendWithNewTimestamp(key, thisLogEvent);
                 return null;
             } else {
                 if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
@@ -110,8 +110,8 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
                  * We can override this context.forward behaviour by using To.all().withTimestamp(latest timestamp);
                  * timestamp is in UNIX milliseconds epoch
                  */
-                context.forward(key, thisLogEvent, To.all().withTimestamp(System.currentTimeMillis()));
-                sendWithNewTimestamp(new KeyValue<>(firstLogEvent.getKafkaKey(), firstLogEvent));
+                sendWithNewTimestamp(key, thisLogEvent);
+                sendWithNewTimestamp(firstLogEvent.getKafkaKey(), firstLogEvent);
                 return null;
             }
         } else {
@@ -120,7 +120,7 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
             logger.info("Storing entry with identifier {} and key {}.", identifier, key);
             store.put(identifier, thisLogEvent);
             if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
-                sendWithNewTimestamp(new KeyValue<>(key, thisLogEvent));
+                sendWithNewTimestamp(key, thisLogEvent);
                 return null;
             } else {
                 // the END event came first and it needs to be enriched with the duration
@@ -144,8 +144,8 @@ class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String,
      * Note that this doesn't change the timestamp in the message, which is the timestamp set in the log.
      *
      */
-    private void sendWithNewTimestamp(KeyValue<String, LogEvent> value) {
-        context.forward(value, System.currentTimeMillis());
+    private void sendWithNewTimestamp(String key, LogEvent event) {
+        context.forward(key, event, To.all().withTimestamp(System.currentTimeMillis()));
     }
 
     @Override
