@@ -122,21 +122,6 @@
     </dependency>
   </dependencies>
 
-  <repositories>
-    <repository>
-      <id>Nexus Staging</id>
-      <url>https://oss.sonatype.org/content/groups/staging</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
   <build>
     <plugins>
       <plugin>
@@ -172,20 +157,18 @@
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <useReleaseProfile>false</useReleaseProfile>
           <releaseProfiles>release,gpg-sign</releaseProfiles>
-          <stagingRepository>https://oss.sonatype.org/service/local/staging/deploy/maven2/</stagingRepository>
           <goals>deploy</goals>
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.7.0</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>false</autoReleaseAfterClose>
-        </configuration>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>0.8.0</version>
+          <extensions>true</extensions>
+          <configuration>
+              <!-- as defined in your settings.xml -->
+              <publishingServerId>central-publisher</publishingServerId>
+          </configuration>
       </plugin>
       <plugin>
           <groupId>net.revelc.code.formatter</groupId>
