@@ -240,7 +240,7 @@ public class TopologyTest {
         // READ
         KeyValue<String, LogEvent> outputRecordEnd = readOutput();
         Assertions.assertNotNull(outputRecordEnd.value);
-        Assertions.assertEquals(MergeProcessor.DEFAULT_KAFKA_MESSAGE_KEY, outputRecordEnd.key);
+        Assertions.assertEquals(MergeTransformer.DEFAULT_KAFKA_MESSAGE_KEY, outputRecordEnd.key);
 
     }
 
