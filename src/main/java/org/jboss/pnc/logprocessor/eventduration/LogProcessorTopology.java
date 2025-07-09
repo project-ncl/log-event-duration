@@ -57,7 +57,7 @@ public class LogProcessorTopology {
                 .withLoggingEnabled(configuration);
         builder.addStateStore(storageStoreBuilder);
 
-        KStream<String, LogEvent> output = input.transform(MergeTransformer::new, LOG_STORE);
+        KStream<String, LogEvent> output = input.process(new MergeProcessorSupplier(), LOG_STORE);
 
         output.to(outputTopic, Produced.with(Serdes.String(), logSerde));
 
