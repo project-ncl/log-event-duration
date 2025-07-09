@@ -1,11 +1,13 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
 import io.micrometer.core.annotation.Timed;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 
-import org.apache.kafka.streams.processor.api.Processor;
-import org.apache.kafka.streams.processor.api.ProcessorContext;
-import org.apache.kafka.streams.processor.api.Record;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.kstream.Transformer;
+import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.processor.To;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.jboss.pnc.logprocessor.eventduration.domain.LogEvent;
 import org.slf4j.Logger;
@@ -17,24 +19,27 @@ import java.time.Duration;
  * @author Ales Justin
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-class MergeProcessor implements Processor<String, LogEvent, String, LogEvent> {
+class MergeTransformer implements Transformer<String, LogEvent, KeyValue<String, LogEvent>> {
     public static final String DEFAULT_KAFKA_MESSAGE_KEY = "0";
-    private static final Logger logger = LoggerFactory.getLogger(MergeProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(MergeTransformer.class);
 
     private KeyValueStore<String, LogEvent> store;
 
-    private ProcessorContext<String, LogEvent> context;
+    private ProcessorContext context;
 
     @Override
-    public void init(ProcessorContext<String, LogEvent> context) {
+    public void init(ProcessorContext context) {
         this.context = context;
-        store = context.getStateStore(LogProcessorTopology.LOG_STORE);
+        // noinspection unchecked
+        store = (KeyValueStore<String, LogEvent>) context.getStateStore(LogProcessorTopology.LOG_STORE);
     }
 
     @Timed
     @Override
     @WithSpan()
-    public void process(Record<String, LogEvent> event) {
+    public KeyValue<String, LogEvent> transform(
+            @SpanAttribute(value = "key") String key,
+            @SpanAttribute(value = "thisLogEvent") LogEvent thisLogEvent) {
 
         /*
          * This change is to support sending the output messages to multiple partitions.
@@ -52,14 +57,12 @@ class MergeProcessor implements Processor<String, LogEvent, String, LogEvent> {
          * If the key remains null, Kafka's default behaviour is to load balance the message through the partitions of a
          * topic, which is not desirable in our case.
          */
-        String key = event.key();
-        LogEvent thisLogEvent = event.value();
         if (key == null) {
             key = thisLogEvent.getMdcProcessContext().orElse(DEFAULT_KAFKA_MESSAGE_KEY);
         }
 
         if (thisLogEvent == null) {
-            return;
+            return null;
         }
         if (thisLogEvent.getEventType().isEmpty()) {
             // not an duration event
@@ -68,7 +71,7 @@ class MergeProcessor implements Processor<String, LogEvent, String, LogEvent> {
              * timestamp might be too old to send, so we have to override that sent timestamp. Only this pattern works
              */
             sendWithNewTimestamp(key, thisLogEvent);
-            return;
+            return null;
         }
         String identifier = thisLogEvent.getIdentifier();
         LogEvent firstLogEvent = store.delete(identifier); // get + remove
@@ -86,7 +89,7 @@ class MergeProcessor implements Processor<String, LogEvent, String, LogEvent> {
                             thisLogEvent.getEventType());
                 }
                 sendWithNewTimestamp(key, thisLogEvent);
-                return;
+                return null;
             } else {
                 if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
                     // this is a START event and the END event came in before the START event
@@ -109,7 +112,7 @@ class MergeProcessor implements Processor<String, LogEvent, String, LogEvent> {
                  */
                 sendWithNewTimestamp(key, thisLogEvent);
                 sendWithNewTimestamp(firstLogEvent.getKafkaKey(), firstLogEvent);
-                return;
+                return null;
             }
         } else {
             // this is a first event
@@ -118,11 +121,11 @@ class MergeProcessor implements Processor<String, LogEvent, String, LogEvent> {
             store.put(identifier, thisLogEvent);
             if (thisLogEvent.getEventType().get().equals(LogEvent.EventType.BEGIN)) {
                 sendWithNewTimestamp(key, thisLogEvent);
-                return;
+                return null;
             } else {
                 // the END event came first and it needs to be enriched with the duration
                 // it must be forwarded when the START event gets in
-                return;
+                return null;
             }
         }
     }
@@ -142,8 +145,7 @@ class MergeProcessor implements Processor<String, LogEvent, String, LogEvent> {
      *
      */
     private void sendWithNewTimestamp(String key, LogEvent event) {
-        Record<String, LogEvent> record = new Record(key, event, System.currentTimeMillis());
-        context.forward(record);
+        context.forward(key, event, To.all().withTimestamp(System.currentTimeMillis()));
     }
 
     @Override
