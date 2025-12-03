@@ -36,7 +36,7 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <quarkus.version>3.12.3</quarkus.version>
+    <quarkus.version>3.30.2</quarkus.version>
     <version.source.plugin>3.4.0</version.source.plugin>
     <tagSuffix />
     <quarkus.package.jar.type>uber-jar</quarkus.package.jar.type>
