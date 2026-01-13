@@ -3,33 +3,10 @@ updates:
 - package-ecosystem: maven
   directory: "/"
   schedule:
-    interval: daily
-    time: "13:00"
-    timezone: America/New_York
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: io.quarkus:quarkus-maven-plugin
-    versions:
-    - 1.11.1.Final
-    - 1.11.2.Final
-    - 1.11.3.Final
-    - 1.12.0.Final
-    - 1.12.1.Final
-    - 1.12.2.Final
-    - 1.13.0.Final
-    - 1.13.1.Final
-    - 1.13.2.Final
-  - dependency-name: io.quarkus:quarkus-universe-bom
-    versions:
-    - 1.11.1.Final
-    - 1.11.2.Final
-    - 1.11.3.Final
-    - 1.12.0.Final
-    - 1.12.1.Final
-    - 1.12.2.Final
-    - 1.13.0.Final
-    - 1.13.1.Final
-    - 1.13.2.Final
-  - dependency-name: net.revelc.code.formatter:formatter-maven-plugin
-    versions:
-    - 2.14.0
+    interval: weekly
+
+- package-ecosystem: "github-actions" # Also update Github actions
+  directory: "/"
+  schedule:
+    # Check for updates to GitHub Actions every week
+    interval: "weekly"
