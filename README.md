@@ -1,4 +1,5 @@
 # Log event duration
+do not merge
 
 Is a Kafka stream processor to enrich log events with the duration. 
 The duration is calculated from two log events with a matching 'tag'.  
