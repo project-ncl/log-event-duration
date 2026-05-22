@@ -17,6 +17,6 @@ on:
 
 jobs:
     call-maven-ci:
-      uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@5724fa71e8573b90c720dbc79fe19ce03157651f # main
+      uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@292cff5496a8a221e20ab9cd82a17e173e926db0 # main
       with:
         upload_artifacts: true
