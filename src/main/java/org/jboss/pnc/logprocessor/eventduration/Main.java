@@ -1,5 +1,8 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
+import java.io.FileInputStream;
+import java.util.Properties;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -7,9 +10,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.FileInputStream;
-import java.util.Properties;
 
 /**
  * @author Ales Justin
