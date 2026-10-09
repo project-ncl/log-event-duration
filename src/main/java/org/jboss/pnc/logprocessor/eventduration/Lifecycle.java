@@ -1,12 +1,14 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
-import io.quarkus.runtime.ShutdownEvent;
-import io.quarkus.runtime.StartupEvent;
-import org.jboss.logging.Logger;
+import java.io.IOException;
 
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import java.io.IOException;
+
+import org.jboss.logging.Logger;
+
+import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.StartupEvent;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

@@ -1,6 +1,7 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.time.Instant;
+
 import org.jboss.pnc.logprocessor.eventduration.domain.LogEvent;
 import org.jboss.pnc.logprocessor.eventduration.utils.LogEventFactory;
 import org.junit.jupiter.api.Assertions;
@@ -8,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
