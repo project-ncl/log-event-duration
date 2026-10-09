@@ -1,6 +1,10 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
-import io.micrometer.core.annotation.Timed;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+
 import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -14,10 +18,7 @@ import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.jboss.pnc.logprocessor.eventduration.domain.LogEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import io.micrometer.core.annotation.Timed;
 
 /**
  * @author Ales Justin

@@ -1,7 +1,6 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
-import io.micrometer.core.annotation.Timed;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
+import java.time.Duration;
 
 import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.ProcessorContext;
@@ -11,7 +10,8 @@ import org.jboss.pnc.logprocessor.eventduration.domain.LogEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
+import io.micrometer.core.annotation.Timed;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 /**
  * @author Ales Justin

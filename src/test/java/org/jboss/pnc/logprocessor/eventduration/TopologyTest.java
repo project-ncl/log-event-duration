@@ -1,6 +1,15 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.jboss.pnc.logprocessor.eventduration.domain.LogEvent.DURATION_KEY;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.NoSuchElementException;
+import java.util.Properties;
+import java.util.UUID;
+
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.KeyValue;
@@ -16,15 +25,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.NoSuchElementException;
-import java.util.Properties;
-import java.util.UUID;
-
-import static java.time.temporal.ChronoUnit.MILLIS;
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.jboss.pnc.logprocessor.eventduration.domain.LogEvent.DURATION_KEY;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
