@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
-import io.opentelemetry.instrumentation.kafkaclients.v2_6.KafkaTelemetry;
 import jakarta.enterprise.inject.Vetoed;
 
 import org.apache.kafka.clients.consumer.Consumer;
@@ -14,6 +13,7 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.processor.internals.DefaultKafkaClientSupplier;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.instrumentation.kafkaclients.v2_6.KafkaTelemetry;
 
 /**
  * @author Ales Justin

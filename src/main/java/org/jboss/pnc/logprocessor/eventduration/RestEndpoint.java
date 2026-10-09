@@ -1,13 +1,14 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.pnc.api.dto.ComponentVersion;
+import java.time.ZonedDateTime;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import java.time.ZonedDateTime;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.pnc.api.dto.ComponentVersion;
 
 @Path("/")
 public class RestEndpoint {

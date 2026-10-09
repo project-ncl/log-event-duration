@@ -1,15 +1,9 @@
 package org.jboss.pnc.logprocessor.eventduration.domain;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micrometer.core.annotation.Timed;
-import org.apache.kafka.common.errors.SerializationException;
-import org.apache.kafka.common.serialization.Deserializer;
-import org.apache.kafka.common.serialization.Serializer;
-import org.jboss.pnc.logprocessor.eventduration.DateParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.jboss.pnc.api.constants.MDCKeys.EVENT_NAME_KEY;
+import static org.jboss.pnc.api.constants.MDCKeys.EVENT_TYPE_KEY;
+import static org.jboss.pnc.api.constants.MDCKeys.PROCESS_CONTEXT_KEY;
+import static org.jboss.pnc.api.constants.MDCKeys.PROCESS_CONTEXT_VARIANT_KEY;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -17,10 +11,18 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.jboss.pnc.api.constants.MDCKeys.EVENT_NAME_KEY;
-import static org.jboss.pnc.api.constants.MDCKeys.EVENT_TYPE_KEY;
-import static org.jboss.pnc.api.constants.MDCKeys.PROCESS_CONTEXT_KEY;
-import static org.jboss.pnc.api.constants.MDCKeys.PROCESS_CONTEXT_VARIANT_KEY;
+import org.apache.kafka.common.errors.SerializationException;
+import org.apache.kafka.common.serialization.Deserializer;
+import org.apache.kafka.common.serialization.Serializer;
+import org.jboss.pnc.logprocessor.eventduration.DateParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.micrometer.core.annotation.Timed;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

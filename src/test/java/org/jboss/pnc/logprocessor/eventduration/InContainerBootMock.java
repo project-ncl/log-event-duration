@@ -1,9 +1,10 @@
 package org.jboss.pnc.logprocessor.eventduration;
 
-import io.quarkus.test.Mock;
+import java.io.IOException;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import java.io.IOException;
+
+import io.quarkus.test.Mock;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

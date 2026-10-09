@@ -1,21 +1,22 @@
 package org.jboss.pnc.logprocessor.eventduration.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jboss.pnc.logprocessor.eventduration.DateParser;
-import org.jboss.pnc.logprocessor.eventduration.domain.LogEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.jboss.pnc.api.constants.MDCKeys.EVENT_NAME_KEY;
 import static org.jboss.pnc.api.constants.MDCKeys.EVENT_TYPE_KEY;
 import static org.jboss.pnc.api.constants.MDCKeys.PROCESS_CONTEXT_KEY;
 import static org.jboss.pnc.api.constants.MDCKeys.PROCESS_CONTEXT_VARIANT_KEY;
 import static org.jboss.pnc.logprocessor.eventduration.domain.LogEvent.TIMESTAMP_KEY;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jboss.pnc.logprocessor.eventduration.DateParser;
+import org.jboss.pnc.logprocessor.eventduration.domain.LogEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
