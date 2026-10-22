@@ -11,7 +11,7 @@
 
   <groupId>org.jboss.pnc.logprocessor</groupId>
   <artifactId>log-event-processor</artifactId>
-  <version>3.3.4-SNAPSHOT</version>
+  <version>4.0.0-SNAPSHOT</version>
 
   <name>pnc</name>
   <description>A system for managing, executing, and tracking builds.</description>
